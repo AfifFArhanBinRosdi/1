@@ -1,0 +1,51 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.net.URL;
+
+
+public class WelcomePanel extends JPanel {
+    private JButton enterButton;
+    private JLabel imageLabel;
+
+
+    public WelcomePanel(CardLayout cardLayout, Container container) {
+        setLayout(new BorderLayout());
+
+        // Create a label with centered text
+        JLabel welcomeLabel = new JLabel("Welcome to the Inventory Management System", JLabel.CENTER);
+        add(welcomeLabel, BorderLayout.CENTER);
+
+        // Create the enter button
+        enterButton = new JButton("Enter");
+        add(enterButton, BorderLayout.SOUTH);
+        
+          // Load the image from URL
+        try 
+        {
+            URL imageUrl = new URL("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-Cn-5EhGiuTSk9Wcpnn2UYkUSZ3tUUXP8Kw&s");
+            ImageIcon imageIcon = new ImageIcon(imageUrl);
+            imageLabel = new JLabel(imageIcon);
+        } 
+        catch (Exception e) 
+        {
+            imageLabel = new JLabel("Image not available");
+        }
+        
+        add(welcomeLabel, BorderLayout.NORTH);
+        add(imageLabel, BorderLayout.CENTER);
+        add(enterButton, BorderLayout.SOUTH);
+
+
+
+        // ActionListener for the enter button to switch to the mainPanel
+        enterButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cardLayout.show(container, "mainPanel");
+            }
+        });
+    }
+}
+ 
