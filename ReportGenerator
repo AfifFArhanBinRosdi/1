@@ -1,0 +1,23 @@
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Map;
+
+public class ReportGenerator {
+    public static void generateReport(String filePath, Map<String, InventoryManagementSystem.Item> inventory) {
+        try (FileWriter writer = new FileWriter(filePath)) {
+            writer.write("Inventory Report:\n");
+            writer.write("==================\n");
+            for (Map.Entry<String, InventoryManagementSystem.Item> entry : inventory.entrySet()) {
+                InventoryManagementSystem.Item item = entry.getValue();
+                writer.write(entry.getKey() + ": "
+                        + "Quantity: " + item.getQuantity()
+                        + ", Price: $" + item.getPrice()
+                        + ", Category: " + item.getCategory()
+                        + ", Supplier: " + item.getSupplier()
+                        + "\n");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
