@@ -1,0 +1,206 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.HashMap;
+import java.util.Map;
+
+public class InventoryManagementSystem extends JFrame {
+
+    // GUI Components
+    private JButton addButton, viewButton, reportButton, supplierButton;
+    private JTextField itemNameField, quantityField, priceField, supplierField;
+    private JLabel itemNameLabel, quantityLabel, priceLabel, supplierLabel;
+    private JComboBox<String> categoryComboBox;
+    private JPanel mainPanel, inputPanel, buttonPanel;
+    private JTextArea inventoryTextArea;
+    private Map<String, Item> inventory;
+
+    // Inner class to represent an Item
+    public static class Item {
+        private int quantity;
+        private double price;
+        private String category;
+        private String supplier;
+
+        public Item(int quantity, double price, String category, String supplier) {
+            this.quantity = quantity;
+            this.price = price;
+            this.category = category;
+            this.supplier = supplier;
+        }
+
+        public int getQuantity() {
+            return quantity;
+        }
+
+        public double getPrice() {
+            return price;
+        }
+
+        public String getCategory() {
+            return category;
+        }
+
+        public String getSupplier() {
+            return supplier;
+        }
+    }
+
+    public InventoryManagementSystem() {
+        setTitle("Inventory Management System");
+        setSize(1000, 400);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+
+        // Initialize components
+        addButton = new JButton("Add Item");
+        viewButton = new JButton("View Inventory");
+        reportButton = new JButton("Generate Report");
+        supplierButton = new JButton("Manage Suppliers");
+
+        itemNameLabel = new JLabel("Item Name:");
+        quantityLabel = new JLabel("Quantity:");
+        priceLabel = new JLabel("Price:");
+        supplierLabel = new JLabel("Supplier:");
+
+        itemNameField = new JTextField(20);
+        quantityField = new JTextField(10);
+        priceField = new JTextField(10);
+        supplierField = new JTextField(20);
+
+        String[] categories = {"Electronics", "Clothing", "Groceries", "Stationery"};
+        categoryComboBox = new JComboBox<>(categories);
+
+        inventoryTextArea = new JTextArea(15, 40);
+        inventoryTextArea.setEditable(false);
+
+        // Simulated inventory data
+        inventory = new HashMap<>();
+        inventory.put("Laptop", new Item(20, 1200.0, "Electronics", "Tech Supplier"));
+        inventory.put("T-shirt", new Item(100, 15.0, "Clothing", "Fashion Supplier"));
+        inventory.put("Apples", new Item(500, 1.5, "Groceries", "Farm Supplier"));
+        inventory.put("Pens", new Item(200, 0.5, "Stationery", "Office Supplier"));
+
+        // Layout setup
+        CardLayout cardLayout = new CardLayout();
+        setLayout(cardLayout);
+
+        mainPanel = new JPanel(new BorderLayout());
+        inputPanel = new JPanel(new GridLayout(5, 5, 10, 10));
+        buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+
+        // Adding components to input panel
+        inputPanel.add(itemNameLabel);
+        inputPanel.add(itemNameField);
+        inputPanel.add(quantityLabel);
+        inputPanel.add(quantityField);
+        inputPanel.add(priceLabel);
+        inputPanel.add(priceField);
+        inputPanel.add(new JLabel("Category:"));
+        inputPanel.add(categoryComboBox);
+        inputPanel.add(supplierLabel);
+        inputPanel.add(supplierField);
+
+        // Adding components to button panel
+        buttonPanel.add(addButton);
+        buttonPanel.add(viewButton);
+        buttonPanel.add(reportButton);
+        buttonPanel.add(supplierButton);
+
+        // Adding text area to main panel
+        mainPanel.add(new JScrollPane(inventoryTextArea), BorderLayout.CENTER);
+        mainPanel.add(inputPanel, BorderLayout.WEST);
+        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        // Add panels to card layout
+        add(new WelcomePanel(cardLayout, getContentPane()), "welcomePanel");
+        add(mainPanel, "mainPanel");
+
+        cardLayout.show(getContentPane(), "welcomePanel");
+
+        // Button actions
+        addButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String itemName = itemNameField.getText();
+                int quantity = Integer.parseInt(quantityField.getText());
+                double price = Double.parseDouble(priceField.getText());
+                String category = (String) categoryComboBox.getSelectedItem();
+                String supplier = supplierField.getText();
+
+                if (inventory.containsKey(itemName)) {
+                    Item existingItem = inventory.get(itemName);
+                    existingItem.quantity += quantity;
+                } else {
+                    inventory.put(itemName, new Item(quantity, price, category, supplier));
+                }
+                updateInventoryTextArea();
+                clearFields();
+            }
+        });
+
+        viewButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                updateInventoryTextArea();
+            }
+        });
+
+        reportButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String filePath = "inventory_report.txt";
+                ReportGenerator.generateReport(filePath, inventory);
+                JOptionPane.showMessageDialog(InventoryManagementSystem.this,
+                        "Report generated at: " + filePath,
+                        "Report",
+                        JOptionPane.INFORMATION_MESSAGE);
+            }
+        });
+
+        supplierButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JOptionPane.showMessageDialog(InventoryManagementSystem.this,
+                        "Supplier management feature is under development.",
+                        "Manage Suppliers",
+                        JOptionPane.INFORMATION_MESSAGE);
+            }
+        });
+
+        setVisible(true);
+    }
+
+    // Update inventory text area
+    private void updateInventoryTextArea() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Current Inventory:\n");
+        for (Map.Entry<String, Item> entry : inventory.entrySet()) {
+            Item item = entry.getValue();
+            sb.append(entry.getKey()).append(": ")
+                    .append("Quantity: ").append(item.getQuantity())
+                    .append(", Price: $").append(item.getPrice())
+                    .append(", Category: ").append(item.getCategory())
+                    .append(", Supplier: ").append(item.getSupplier())
+                    .append("\n");
+        }
+        inventoryTextArea.setText(sb.toString());
+    }
+
+    // Clear input fields
+    private void clearFields() {
+        itemNameField.setText("");
+        quantityField.setText("");
+        priceField.setText("");
+        supplierField.setText("");
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                new InventoryManagementSystem();
+            }
+        });
+    }
+}
